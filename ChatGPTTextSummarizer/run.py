@@ -5,41 +5,72 @@ import decouple
 from chatgpt.helpers import count_tokens
 
 
-if __name__ == "__main__":
-    # url_path = "https://arxiv.org/pdf/2010.12042.pdf"
-    url_path = "https://arxiv.org/pdf/2301.00010"
-
-    with Downloader(url_path) as pdf:
-        text = get_text_from_pdf(pdf.get_path_name)
-
-    result_place_holder = ""
-    text_list = text.split()
-
-    while len(text_list) > 0:
-        text_place_holder = ""
-        token_nums = 0
-        while (
-            token_nums < 2900 and len(text_list) > 0
-        ):  # token_nums limit needs to be optimized for better results
-            text_place_holder += " ".join(text_list[:100]) + " "
-            del text_list[:100]
-            token_nums = count_tokens(text_place_holder)
-
-        print(len(text_list))
-
-        prompt = "{}\n\ntl;dr".format(text_place_holder)
+class ChatGPTTextSummarizer:
+    """Class to summarize text using the OpenAI API.
+    e.g.:
+        url_path = "https://arxiv.org/pdf/2301.00018"
 
         data = {
             "api_key": decouple.config("OPENAI_API_KEY"),
             "model": "text-davinci-003",
             "temperature": 1.2,
-            "max_tokens": 4096 - count_tokens(prompt),
-            "prompt": prompt,
+            "max_allowed_tokens": 4096,
+            "url_path": url_path,
         }
 
-        api_caller = APICaller(**data)
-        result = api_caller.get_text_result()
+        summarizer = ChatGPTTextSummarizer(**data)
+        print(summarizer.get_summary())
 
-        result_place_holder += result
+    """
 
-    print(result_place_holder)
+    def __init__(
+        self,
+        api_key: str,
+        model: str,
+        temperature: float,
+        max_allowed_tokens: int,
+        url_path: str,
+    ):
+        self.api_key = api_key
+        self.model = model
+        self.temperature = temperature
+        self.max_allowed_tokens = max_allowed_tokens
+        self.url_path = url_path
+
+    def get_summary(self):
+        with Downloader(url_path) as pdf:
+            text = get_text_from_pdf(pdf.get_path_name)
+
+        result_place_holder = ""
+        text_list = text.split()
+
+        while len(text_list) > 0:
+            text_place_holder = ""
+            token_nums = 0
+            while (
+                token_nums < 2900 and len(text_list) > 0
+            ):  # token_nums limit needs to be optimized for better results
+                text_place_holder += " ".join(text_list[:100]) + " "
+                del text_list[:100]
+                token_nums = count_tokens(text_place_holder)
+
+            prompt = "{}\n\ntl;dr".format(text_place_holder)
+
+            data = {
+                "api_key": self.api_key,
+                "model": self.model,
+                "temperature": self.temperature,
+                "max_tokens": self.max_allowed_tokens - count_tokens(prompt),
+                "prompt": prompt,
+            }
+
+            api_caller = APICaller(**data)
+            result = api_caller.get_text_result()
+
+            result_place_holder += result
+
+        return result_place_holder
+
+
+if __name__ == "__main__":
+    pass

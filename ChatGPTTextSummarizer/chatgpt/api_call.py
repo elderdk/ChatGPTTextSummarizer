@@ -11,7 +11,7 @@ class APICaller:
         self,
         api_key: str,
         model: str,
-        temperature: int,
+        temperature: float,
         max_tokens: int,
         prompt: str,
         user_allowed_tokens: Union[int, None] = None,
