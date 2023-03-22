@@ -1,7 +1,7 @@
 import openai
 import tiktoken
 from typing import Union
-import decouple
+from .helpers import count_tokens
 
 
 class APICaller:
@@ -15,6 +15,7 @@ class APICaller:
         max_tokens: int,
         prompt: str,
         user_allowed_tokens: Union[int, None] = None,
+        messages: Union[list, None] = None,
     ):
         openai.api_key = api_key
 
@@ -24,14 +25,12 @@ class APICaller:
         self.prompt = prompt
         self.result = None
         self.used_tokens = (0,)
-        self.downloaded: bool = False
+        self.downloaded: bool = (False,)
+        self.messages = messages
 
     def count_tokens(self) -> int:
         """Count the number of tokens in the prompt."""
-        encoding = tiktoken.get_encoding("cl100k_base")
-        encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-        tokens = encoding.encode(self.prompt)
-        return len(tokens)
+        return count_tokens(self.prompt)
 
     def call_api(self):
         """Call the OpenAI API."""
@@ -48,24 +47,31 @@ class APICaller:
 
         self.result = result
 
-    def get_text_result(self) -> dict:
+    def get_text_result(self) -> str:
         """Get the text result from the API call."""
         if self.result is None:
             self.call_api()
 
         return self.result["choices"][0]["text"]
 
-
-api_key = decouple.config("OPENAI_API_KEY")
-
-caller = APICaller(
-    api_key=api_key,
-    model="text-davinci-003",
-    max_tokens=7,
-    temperature=0,
-    prompt="Say hello world.",
-)
-
-print(caller.get_text_result())
-print(caller.count_tokens())
-print(caller.used_tokens)
+    def __str__(self) -> str:
+        """Return the string representation of the object."""
+        msg = """Result
+        prompt: {},
+        model: {},
+        temperature: {},
+        used_tokens: {},
+        
+        result: {},
+        
+        result-json: {}
+        
+        """.format(
+            self.prompt,
+            self.model,
+            self.temperature,
+            self.used_tokens,
+            self.get_text_result(),
+            self.result,
+        )
+        return msg
