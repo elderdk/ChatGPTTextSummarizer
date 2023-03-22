@@ -41,7 +41,7 @@ class ChatGPTTextSummarizer:
         with Downloader(self.url_path) as pdf:
             text = get_text_from_pdf(pdf.get_path_name)
 
-        result_place_holder = ""
+        result_holder = ""
         text_list = text.split()
 
         while len(text_list) > 0:
@@ -67,9 +67,9 @@ class ChatGPTTextSummarizer:
             api_caller = APICaller(**data)
             result = api_caller.get_text_result()
 
-            result_place_holder += result
+            result_holder += result
 
-        return result_place_holder
+        return result_holder
 
 
 if __name__ == "__main__":
