@@ -1,5 +1,4 @@
 import openai
-import tiktoken
 from typing import Union
 from .helpers import count_tokens
 
