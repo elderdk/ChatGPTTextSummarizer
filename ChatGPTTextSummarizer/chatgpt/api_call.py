@@ -11,7 +11,7 @@ class APICaller:
         self,
         api_key: str,
         model: str,
-        temperature: float,
+        temperature: Union[float, int],
         max_tokens: int,
         prompt: str,
     ):
@@ -21,7 +21,7 @@ class APICaller:
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.prompt = prompt
-        self.result = Union[dict, None]
+        self.result = None
 
     def count_tokens(self) -> int:
         """Count the number of tokens in the prompt."""
