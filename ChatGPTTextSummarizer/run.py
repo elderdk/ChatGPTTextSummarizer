@@ -38,7 +38,7 @@ class ChatGPTTextSummarizer:
         self.url_path = url_path
 
     def get_summary(self):
-        with Downloader(url_path) as pdf:
+        with Downloader(self.url_path) as pdf:
             text = get_text_from_pdf(pdf.get_path_name)
 
         result_place_holder = ""

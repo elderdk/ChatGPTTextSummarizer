@@ -14,8 +14,6 @@ class APICaller:
         temperature: float,
         max_tokens: int,
         prompt: str,
-        user_allowed_tokens: Union[int, None] = None,
-        messages: Union[list, None] = None,
     ):
         openai.api_key = api_key
 
@@ -23,10 +21,7 @@ class APICaller:
         self.temperature = temperature
         self.max_tokens = max_tokens
         self.prompt = prompt
-        self.result = None
-        self.used_tokens = (0,)
-        self.downloaded: bool = (False,)
-        self.messages = messages
+        self.result = Union[dict, None]
 
     def count_tokens(self) -> int:
         """Count the number of tokens in the prompt."""
@@ -41,10 +36,6 @@ class APICaller:
             temperature=self.temperature,
         )
 
-        self.used_tokens = (
-            result["usage"]["prompt_tokens"] + result["usage"]["completion_tokens"]
-        )
-
         self.result = result
 
     def get_text_result(self) -> str:
@@ -56,22 +47,4 @@ class APICaller:
 
     def __str__(self) -> str:
         """Return the string representation of the object."""
-        msg = """Result
-        prompt: {},
-        model: {},
-        temperature: {},
-        used_tokens: {},
-        
-        result: {},
-        
-        result-json: {}
-        
-        """.format(
-            self.prompt,
-            self.model,
-            self.temperature,
-            self.used_tokens,
-            self.get_text_result(),
-            self.result,
-        )
-        return msg
+        return str(self.result)
