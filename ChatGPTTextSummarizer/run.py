@@ -73,4 +73,15 @@ class ChatGPTTextSummarizer:
 
 
 if __name__ == "__main__":
-    pass
+    url_path = "https://arxiv.org/pdf/2301.00018"
+
+    data = {
+        "api_key": decouple.config("OPENAI_API_KEY"),
+        "model": "text-davinci-003",
+        "temperature": 1.2,
+        "max_allowed_tokens": 4096,
+        "url_path": url_path,
+    }
+
+    summarizer = ChatGPTTextSummarizer(**data)
+    print(summarizer.get_summary())
